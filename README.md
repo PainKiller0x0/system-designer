@@ -1,4 +1,4 @@
-# 系统策划-hzw Skill
+# System Designer Skill
 
 基于 Claude Code 的游戏系统策划多智能体工作流。给定 UI 参考图，自动完成需求拆解、策划案撰写、规范审查的全流程。
 
@@ -24,10 +24,10 @@
   Claude Code（Supervisor）
    读取 CLAUDE.md 自主决策
         ↓
- ┌──────┬──────┬──────┐
- A2     A1     A3     A5
-需求   策划   规范   Prompt
-拆解    案    审查   守护
+ ┌──────┬──────┬──────┬──────┐
+ A2     A1     A3     A4     A5
+需求   策划   规范   逆向   Prompt
+拆解    案    审查   需求   守护
 ```
 
 - **你只需要和 Claude Code 说话**，其余 Agent 均由 Claude Code 自动调用。
@@ -174,6 +174,21 @@ Claude Code 会：
 修改上面策划案中的奖励部分，改为...
 ```
 
+### 逆向需求（从策划案重生成标准格式策划案）
+
+```
+逆向需求：公会红包
+从策划案还原需求
+分析这份策划案的需求
+```
+
+Claude Code 会：
+
+1. 读取 `docs/project_doc_index.md` 查找对应文档
+2. 调用逆向需求 Agent，生成标准格式需求 Draft
+3. 自动调用策划 Agent 生成标准格式策划案
+4. 自动进行规范审查
+
 ---
 
 ## 目录结构
@@ -181,17 +196,22 @@ Claude Code 会：
 ```
 system designer skill/
 ├── CLAUDE.md                          # Supervisor 工作流配置（核心）
+├── SKILL.md                           # Skill 描述文件
 ├── README.md                          # 本文件
 ├── prompts/
 │   ├── system_designer.md             # A1 策划 Agent 的 Prompt（受守护）
 │   ├── requirements_analyzer.md       # A2 需求拆解 Agent 的 Prompt
-│   └── standards_reviewer.md          # A3 规范审查 Agent 的 Prompt
+│   ├── standards_reviewer.md          # A3 规范审查 Agent 的 Prompt
+│   ├── reverse_requirements.md        # A4 逆向需求 Agent 的 Prompt
+│   └── prompt_guardian.md             # A5 Prompt 守护 Agent 的 Prompt
 ├── docs/
-│   └── project_doc_index.md           # 项目历史文档目录索引
+│   ├── project_doc_index.md           # 项目历史文档目录索引
+│   └── reference/                     # 转换后的参考文档
 ├── data/
 │   ├── images/                        # 用户上传的 UI 参考图（自动保存）
 │   ├── sessions/                      # 完整对话记录 YAML（自动生成）
 │   └── test/                          # 调试用传参记录（自动生成）
+├── src/xlsx_to_md.py                  # Excel 转 Markdown 工具
 └── src/subagent/system_designer_beta/
     ├── .env.example                   # 环境变量示例
     ├── .env                           # 你的本地配置（需自行创建）
@@ -200,6 +220,8 @@ system designer skill/
     ├── config.py                      # 路径配置
     ├── agents/                        # 各 Agent 实现
     └── tools/                         # 工具函数
+        ├── session_writer.py          # 会话记录写入工具
+        └── ...
 ```
 
 ---
@@ -216,7 +238,13 @@ system designer skill/
 确认已在 `src/subagent/system_designer_beta/.env` 中填写了正确的 API Key，且当前终端已激活虚拟环境。
 
 **Q：Claude Code 没有按照预期流程执行？**
-确认是在项目根目录（`system designer skill/`）下运行 `claude`，这样 `CLAUDE.md` 才会被自动加载。
+确认是在项目根目录下运行 `claude`，这样 `CLAUDE.md` 才会被自动加载。
 
 **Q：能否直接运行 run.py？**
 `run.py` 仅用于调试单个 Agent，正常使用请通过 Claude Code 对话驱动，不要直接调用 Python 脚本。
+
+**Q：逆向需求功能什么时候用？**
+当你有旧策划案（Excel/Word/Markdown 格式），想要重整为标准格式策划案时使用。系统会自动从 `docs/project_doc_index.md` 中查找对应文档。
+
+**Q：PROJECT_DOC_PATH 如何配置？**
+在 `.env` 文件中设置为你项目文档的本地路径，例如：`PROJECT_DOC_PATH=D:\Docs\策划\系统文档`。如果不配置，逆向需求功能将无法查阅历史文档。
