@@ -7,18 +7,55 @@ description: 项目系统策划多智能体工作流。基于 UI 参考图，自
 
 项目系统策划多智能体工作流。基于 UI 参考图，自动完成需求拆解、策划案撰写、规范审查的全流程。
 
-> **注意**：本 skill 的完整工作流配置在 `CLAUDE.md`（Claude Code Supervisor 配置）中。
-> OpenClaw 加载本 SKILL.md 后，具体执行逻辑请参考 CLAUDE.md。
+> **支持工具**：Claude Code、OpenCode
+> - Claude Code 用户请参考 `CLAUDE.md`
+> - OpenCode 用户请参考 `OPENCODE.md`
+
+## 工具对比
+
+| 特性 | Claude Code | OpenCode |
+|------|-------------|----------|
+| 配置文件 | CLAUDE.md | OPENCODE.md |
+| 工具名称 | Agent | Task |
+| 子代理类型 | `general-purpose` | `general` |
+| 工作流 | 相同 | 相同 |
+| Prompt 文件 | 共用 `prompts/` 目录 | 共用 `prompts/` 目录 |
+
+## 快速开始
+
+### Claude Code 用户
+```bash
+# 在项目根目录启动 Claude Code
+claude
+# Claude Code 会自动读取 CLAUDE.md
+```
+
+### OpenCode 用户
+```bash
+# 在项目根目录启动 OpenCode
+opencode
+# OpenCode 会自动读取 OPENCODE.md
+```
 
 ## 工作流程
 
 ### 一、写策划案（主流程）
 
-**Step 1：索取 UI 参考图（必须，不可跳过）**
-- 检测到"写策划案"、"帮我设计XX系统"等意图时，立刻要求用户提供 UI 参考图
+**Step 1：获取 UI 参考图或文字描述**
+
+检测到"写策划案"、"帮我设计XX系统"等意图时，按以下流程获取 UI 信息：
+
+**方案A：用户提供 UI 参考图（优先）**
 - 提示语：「请提供该功能的 UI 参考图，可直接在对话中粘贴截图或拖入图片文件。」
-- 用户不提供则不继续，耐心等待
 - 收到图片后，保存到 `data/images/{session_id}_{原始文件名或 ref.png}`
+- 进入 Step 2
+
+**方案B：用户选择文字描述（备选）**
+- 如果用户说「没有参考图」或「用文字描述」，进入文字描述模式
+- 提示语：「请用文字描述你想要的 UI 布局和功能，我会帮你生成 UI 参考图。」
+- 用户提供文字描述后，调用 AI 生成 UI 参考图详细描述
+- 将生成的 UI 描述保存到 `data/images/{session_id}_ai_generated_ui.md`
+- 进入 Step 2
 
 **Step 2：调用需求拆解 Agent（A2）**
 - 使用 `sessions_spawn` 调用子代理，传入 `prompts/requirements_analyzer.md` 全文作为 System Prompt
@@ -75,7 +112,8 @@ description: 项目系统策划多智能体工作流。基于 UI 参考图，自
 
 ## 核心文件
 
-- `CLAUDE.md` - Supervisor 完整工作流配置（Claude Code 格式，含详细规范）
+- `CLAUDE.md` - Claude Code Supervisor 完整工作流配置
+- `OPENCODE.md` - OpenCode Supervisor 完整工作流配置
 - `prompts/system_designer.md` - A1 系统策划 Agent 的 Prompt（受守护）
 - `prompts/requirements_analyzer.md` - A2 需求拆解 Agent 的 Prompt
 - `prompts/standards_reviewer.md` - A3 规范审查 Agent 的 Prompt
@@ -85,7 +123,7 @@ description: 项目系统策划多智能体工作流。基于 UI 参考图，自
 
 ## 注意事项
 
-- **永远不要**在没有 UI 参考图的情况下开始写策划案
+- **永远不要**在没有 UI 参考图或文字描述的情况下开始写策划案（至少需要其中一种）
 - **永远不要**跳过用户对需求 Draft 的确认步骤
 - **所有生成的策划案必须保存到 `docs/` 目录**，文件名格式：`{feature_name}_{session_id}.md`
 - Session ID 格式：`%Y%m%d_%H%M%S`（任务开始时生成一次）
