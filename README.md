@@ -1,11 +1,12 @@
 # System Designer Skill
 
-基于 Claude Code 的游戏系统策划多智能体工作流。给定 UI 参考图，自动完成需求拆解、策划案撰写、规范审查的全流程。
+基于 Claude Code / OpenCode 的游戏系统策划多智能体工作流。给定 UI 参考图，自动完成需求拆解、策划案撰写、规范审查的全流程。
 
 ---
 
 ## 目录
 
+- [支持工具](#支持工具)
 - [工作原理](#工作原理)
 - [前置要求](#前置要求)
 - [安装步骤](#安装步骤)
@@ -16,13 +17,26 @@
 
 ---
 
+## 支持工具
+
+本项目支持两种 AI 工具：
+
+| 工具 | 配置文件 | 工具名称 | 安装命令 |
+|------|----------|----------|----------|
+| **Claude Code** | CLAUDE.md | Agent | `npm install -g @anthropic-ai/claude-code` |
+| **OpenCode** | OPENCODE.md | Task | `npm install -g opencode` |
+
+> 两种工具的工作流完全相同，只是工具调用方式略有不同。
+
+---
+
 ## 工作原理
 
 ```
-用户（Claude Code 对话）
+用户（Claude Code / OpenCode 对话）
         ↓
-  Claude Code（Supervisor）
-   读取 CLAUDE.md 自主决策
+  AI 工具（Supervisor）
+   读取配置文件自主决策
         ↓
  ┌──────┬──────┬──────┬──────┐
  A2     A1     A3     A4     A5
@@ -30,22 +44,33 @@
 拆解    案    审查   需求   守护
 ```
 
-- **你只需要和 Claude Code 说话**，其余 Agent 均由 Claude Code 自动调用。
-- Python 依赖（LangGraph）是底层框架，Claude Code 通过 Agent 工具直接驱动各 Agent，**无需手动运行 Python 脚本**。
+- **你只需要和 AI 工具说话**，其余 Agent 均由工具自动调用。
+- Python 依赖（LangGraph）是底层框架，AI 工具通过 Agent/Task 工具直接驱动各 Agent，**无需手动运行 Python 脚本**。
 
 ---
 
 ## 前置要求
 
-### 1. Claude Code
+### 1. AI 工具（二选一）
 
-Claude Code 是本项目的唯一入口。
-
-**安装方式：**
+#### Claude Code
 
 ```bash
 # 需要先安装 Node.js 18+（https://nodejs.org）
 npm install -g @anthropic-ai/claude-code
+
+# 验证安装
+claude --version
+```
+
+#### OpenCode
+
+```bash
+# 需要先安装 Node.js 18+（https://nodejs.org）
+npm install -g opencode
+
+# 验证安装
+opencode --version
 ```
 
 安装完成后验证：
@@ -193,6 +218,38 @@ Claude Code 会：
 
 ## 目录结构
 
+```
+system designer skill/
+├── CLAUDE.md                          # Claude Code Supervisor 工作流配置
+├── OPENCODE.md                        # OpenCode Supervisor 工作流配置
+├── SKILL.md                           # Skill 描述文件
+├── README.md                          # 本文件
+├── install_opencode.bat               # OpenCode 安装脚本（Windows）
+├── install_opencode.sh                # OpenCode 安装脚本（Linux/macOS）
+├── prompts/
+│   ├── system_designer.md             # A1 策划 Agent 的 Prompt（受守护）
+│   ├── requirements_analyzer.md       # A2 需求拆解 Agent 的 Prompt
+│   ├── standards_reviewer.md          # A3 规范审查 Agent 的 Prompt
+│   ├── reverse_requirements.md        # A4 逆向需求 Agent 的 Prompt
+│   └── prompt_guardian.md             # A5 Prompt 守护 Agent 的 Prompt
+├── docs/
+│   ├── project_doc_index.md           # 项目历史文档目录索引
+│   └── reference/                     # 转换后的参考文档
+├── data/
+│   ├── images/                        # 用户上传的 UI 参考图（自动保存）
+│   ├── sessions/                      # 完整对话记录 YAML（自动生成）
+│   └── test/                          # 调试用传参记录（自动生成）
+├── src/
+│   ├── xlsx_to_md.py                  # Excel 转 Markdown 工具
+│   ├── opencode_adapter.py            # OpenCode 适配器
+│   └── subagent/system_designer_beta/ # LangGraph Subagent 框架
+│       ├── .env.example               # 环境变量示例
+│       ├── .env                       # 你的本地配置（需自行创建）
+│       ├── requirements.txt           # Python 依赖
+│       ├── run.py                     # 调试入口
+│       ├── config.py                  # 路径配置
+│       ├── agents/                    # 各 Agent 实现
+│       └── tools/                     # 工具函数
 ```
 system designer skill/
 ├── CLAUDE.md                          # Supervisor 工作流配置（核心）

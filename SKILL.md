@@ -7,8 +7,35 @@ description: 项目系统策划多智能体工作流。基于 UI 参考图，自
 
 项目系统策划多智能体工作流。基于 UI 参考图，自动完成需求拆解、策划案撰写、规范审查的全流程。
 
-> **注意**：本 skill 的完整工作流配置在 `CLAUDE.md`（Claude Code Supervisor 配置）中。
-> OpenClaw 加载本 SKILL.md 后，具体执行逻辑请参考 CLAUDE.md。
+> **支持工具**：Claude Code、OpenCode
+> - Claude Code 用户请参考 `CLAUDE.md`
+> - OpenCode 用户请参考 `OPENCODE.md`
+
+## 工具对比
+
+| 特性 | Claude Code | OpenCode |
+|------|-------------|----------|
+| 配置文件 | CLAUDE.md | OPENCODE.md |
+| 工具名称 | Agent | Task |
+| 子代理类型 | `general-purpose` | `general` |
+| 工作流 | 相同 | 相同 |
+| Prompt 文件 | 共用 `prompts/` 目录 | 共用 `prompts/` 目录 |
+
+## 快速开始
+
+### Claude Code 用户
+```bash
+# 在项目根目录启动 Claude Code
+claude
+# Claude Code 会自动读取 CLAUDE.md
+```
+
+### OpenCode 用户
+```bash
+# 在项目根目录启动 OpenCode
+opencode
+# OpenCode 会自动读取 OPENCODE.md
+```
 
 ## 工作流程
 
@@ -75,7 +102,8 @@ description: 项目系统策划多智能体工作流。基于 UI 参考图，自
 
 ## 核心文件
 
-- `CLAUDE.md` - Supervisor 完整工作流配置（Claude Code 格式，含详细规范）
+- `CLAUDE.md` - Claude Code Supervisor 完整工作流配置
+- `OPENCODE.md` - OpenCode Supervisor 完整工作流配置
 - `prompts/system_designer.md` - A1 系统策划 Agent 的 Prompt（受守护）
 - `prompts/requirements_analyzer.md` - A2 需求拆解 Agent 的 Prompt
 - `prompts/standards_reviewer.md` - A3 规范审查 Agent 的 Prompt
