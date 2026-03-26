@@ -226,6 +226,7 @@ system designer skill/
 ├── README.md                          # 本文件
 ├── install_opencode.bat               # OpenCode 安装脚本（Windows）
 ├── install_opencode.sh                # OpenCode 安装脚本（Linux/macOS）
+├── pytest.ini                         # 测试配置
 ├── prompts/
 │   ├── system_designer.md             # A1 策划 Agent 的 Prompt（受守护）
 │   ├── requirements_analyzer.md       # A2 需求拆解 Agent 的 Prompt
@@ -239,6 +240,11 @@ system designer skill/
 │   ├── images/                        # 用户上传的 UI 参考图（自动保存）
 │   ├── sessions/                      # 完整对话记录 YAML（自动生成）
 │   └── test/                          # 调试用传参记录（自动生成）
+├── tests/
+│   ├── conftest.py                    # 测试配置和 fixtures
+│   ├── test_config.py                 # config 模块测试
+│   ├── test_run.py                    # run.py 模块测试
+│   └── test_agents.py                 # agents 模块测试
 ├── src/
 │   ├── xlsx_to_md.py                  # Excel 转 Markdown 工具
 │   ├── opencode_adapter.py            # OpenCode 适配器
@@ -250,35 +256,9 @@ system designer skill/
 │       ├── config.py                  # 路径配置
 │       ├── agents/                    # 各 Agent 实现
 │       └── tools/                     # 工具函数
-```
-system designer skill/
-├── CLAUDE.md                          # Supervisor 工作流配置（核心）
-├── SKILL.md                           # Skill 描述文件
-├── README.md                          # 本文件
-├── prompts/
-│   ├── system_designer.md             # A1 策划 Agent 的 Prompt（受守护）
-│   ├── requirements_analyzer.md       # A2 需求拆解 Agent 的 Prompt
-│   ├── standards_reviewer.md          # A3 规范审查 Agent 的 Prompt
-│   ├── reverse_requirements.md        # A4 逆向需求 Agent 的 Prompt
-│   └── prompt_guardian.md             # A5 Prompt 守护 Agent 的 Prompt
-├── docs/
-│   ├── project_doc_index.md           # 项目历史文档目录索引
-│   └── reference/                     # 转换后的参考文档
-├── data/
-│   ├── images/                        # 用户上传的 UI 参考图（自动保存）
-│   ├── sessions/                      # 完整对话记录 YAML（自动生成）
-│   └── test/                          # 调试用传参记录（自动生成）
-├── src/xlsx_to_md.py                  # Excel 转 Markdown 工具
-└── src/subagent/system_designer_beta/
-    ├── .env.example                   # 环境变量示例
-    ├── .env                           # 你的本地配置（需自行创建）
-    ├── requirements.txt               # Python 依赖
-    ├── run.py                         # 调试入口（通常不需要手动调用）
-    ├── config.py                      # 路径配置
-    ├── agents/                        # 各 Agent 实现
-    └── tools/                         # 工具函数
-        ├── session_writer.py          # 会话记录写入工具
-        └── ...
+│           ├── session_writer.py      # 会话记录写入工具
+│           ├── progress.py            # 进度提示工具
+│           └── ...
 ```
 
 ---
