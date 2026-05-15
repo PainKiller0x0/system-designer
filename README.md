@@ -8,12 +8,10 @@
 - **UI 需求拆解** — 从参考图提取结构化需求 Draft
 - **策划案撰写** — 基于需求生成标准格式策划案
 - **规范审查** — 自动检查格式、语言、逻辑合规性
-- **逆向需求** — 从已有策划案还原需求 Draft
-- **Prompt 守护** — 自动优化策划 Agent 的 system prompt
 
 ## 设计理念
 
-- **多智能体协作**：策划、需求、审查、守护 5 个 Agent 各司其职
+- **多智能体协作**：策划撰写、MDA 需求拆解、规范审查 3 个 Agent 各司其职
 - **pi 框架原生**：使用 pi 的 skill + agents 机制，零配置启动
 - **无视觉能力也能用**：vision_describe MCP 支持 Kimi k2.5、Claude、OpenAI 等视觉模型
 - **可观测性**：所有对话和输出保存在 `data/sessions/`，便于回溯
@@ -24,12 +22,12 @@
 用户输入 UI 参考
     ↓
 pi (Supervisor)
-    ↓ sd-a2 (需求拆解)
+    ↓ sd-mda (需求拆解)
 需求 Draft
     ↓ 用户确认
-    ↓ sd-a1 (策划撰写) → sd-a5 (Prompt 守护)
+    ↓ sd-writer (策划撰写)
 策划案
-    ↓ sd-a3 (规范审查)
+    ↓ sd-review (规范审查)
 审查报告
     ↓ 用户确认修改
 最终策划案
@@ -42,7 +40,9 @@ system-designer/
 ├── SKILL.md                          ← 业务规则 + 工作流（pi 加载）
 ├── README.md                         ← 本文件
 ├── agents/
-│   ├── sd-a1.md ~ sd-a5.md           ← Agent 定义
+│   ├── sd-writer.md                  ← 策划案撰写/修改 Agent
+│   ├── sd-mda.md                     ← MDA 需求拆解 Agent
+│   └── sd-review.md                  ← 规范审查 Agent
 ├── src/vision-describe-mcp/        ← 视觉理解 MCP 服务器
 │   ├── server.py
 │   ├── config.example.json
@@ -54,13 +54,11 @@ system-designer/
 
 ## Agent 概览
 
-| Agent | 用途 |
-|-------|------|
-| `sd-a1` | 策划撰写/修改（受 sd-a5 守护） |
-| `sd-a2` | UI 需求拆解 |
-| `sd-a3` | 规范审查 |
-| `sd-a4` | 逆向需求 |
-| `sd-a5` | Prompt 守护 |
+| Agent | 用途 | 内部规范 |
+|-------|------|----------|
+| `sd-writer` | 策划案撰写/修改 | `agents/sd-writer.md`（格式、语言、结构等规范） |
+| `sd-mda` | MDA 需求拆解 | `agents/sd-mda.md`（MDA 拆解规则） |
+| `sd-review` | 规范审查 | `agents/sd-review.md`（审查标准） |
 
 ## 安装
 
@@ -80,14 +78,12 @@ for f in agents/sd-*.md; do
 done
 
 # Windows（管理员 CMD）
-mklink "%USERPROFILE%\.pi\agent\agents\sd-a1.md" "%cd%\agents\sd-a1.md"
-mklink "%USERPROFILE%\.pi\agent\agents\sd-a2.md" "%cd%\agents\sd-a2.md"
-mklink "%USERPROFILE%\.pi\agent\agents\sd-a3.md" "%cd%\agents\sd-a3.md"
-mklink "%USERPROFILE%\.pi\agent\agents\sd-a4.md" "%cd%\agents\sd-a4.md"
-mklink "%USERPROFILE%\.pi\agent\agents\sd-a5.md" "%cd%\agents\sd-a5.md"
+mklink "%USERPROFILE%\.pi\agent\agents\sd-writer.md" "%cd%\agents\sd-writer.md"
+mklink "%USERPROFILE%\.pi\agent\agents\sd-mda.md" "%cd%\agents\sd-mda.md"
+mklink "%USERPROFILE%\.pi\agent\agents\sd-review.md" "%cd%\agents\sd-review.md"
 ```
 
-验证：`subagent { action: "list" }` 应看到 `sd-a1` ~ `sd-a5`。
+验证：`subagent { action: "list" }` 应看到 `sd-writer`、`sd-mda`、`sd-review`。
 
 ### 3. 安装视觉 MCP 服务器（可选）
 
@@ -110,6 +106,8 @@ cp config.example.json config.json
 ```
 
 支持的 Provider：`kimi` / `moonshot` / `anthropic` / `openai`。
+
+API Key 优先级：`VISION_API_KEY` 环境变量 > `config.json`。
 
 在 pi 的 `settings.json` 中注册 MCP 服务器：
 
@@ -140,13 +138,13 @@ pi --skill $(pwd)
 用户：写策划案
 pi：请提供该功能的 UI 参考图
 用户：[粘贴截图]
-pi：[调用 vision_describe] → [调用 sd-a2 拆解需求] →
+pi：[调用 vision_describe] → [调用 sd-mda 拆解需求] →
      需求 Draft 已生成，请确认：
      1. 玩家进入商城，点击充值按钮
      2. 选择充值档位 648 元
      ...
 用户：确认
-pi：[调用 sd-a1 撰写策划案] → [调用 sd-a3 规范审查] →
+pi：[调用 sd-writer 撰写策划案] → [调用 sd-review 规范审查] →
      策划案已生成：docs/20250328_103045_充值系统.md
      审查结果：2 处修改建议
 ```
@@ -154,13 +152,13 @@ pi：[调用 sd-a1 撰写策划案] → [调用 sd-a3 规范审查] →
 ## FAQ
 
 **Q：不安装 vision_describe 能用吗？**
-A：可以。直接用文字描述 UI 参考，或由你粘贴策划案让 sd-a4 逆向生成需求。
+A：可以。直接用文字描述 UI 参考即可开始工作流。
 
 **Q：可以自定义策划案格式吗？**
-A：修改 `agents/sd-a1.md` 的 body 部分。`sd-a5` 守护 Agent 会持续优化它。
+A：修改 `agents/sd-writer.md` 的 body 部分。
 
 **Q：历史文档如何索引？**
-A：更新 `docs/project_doc_index.md`，`sd-a1` 会自动读取参考。
+A：更新 `docs/project_doc_index.md`，`sd-writer` 会自动读取参考。
 
 **Q：想用 Kimi 做视觉理解？**
 A：在 `config.json` 中设置 `provider: "kimi"`，`model: "kimi-k2.5"`，填入 `api_key` 即可。
