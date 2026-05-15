@@ -1,5 +1,5 @@
 ---
-name: sd-a1 
+name: sd-writer 
 description: 资深游戏系统策划专家，撰写标准格式策划案或根据反馈修改策划案 
 tools: read, edit, write, bash, grep, find, ls
 ---
