@@ -35,7 +35,8 @@ system-designer/
 ├── agents/
 │   ├── sd-writer.md                  ← 策划案撰写/修改 Agent
 │   ├── sd-mda.md                     ← MDA 需求拆解 Agent
-│   └── sd-review.md                  ← 规范审查 Agent
+│   ├── sd-review.md                  ← 规范审查 Agent
+│   └── sd-interactive.md             ← 客户端交互需求 Agent
 ├── src/vision-describe-mcp/        ← 视觉理解 MCP 服务器
 │   ├── server.py
 │   ├── config.example.json
@@ -52,6 +53,7 @@ system-designer/
 | `sd-writer` | 策划案撰写/修改 | `agents/sd-writer.md`（格式、语言、结构等规范） |
 | `sd-mda` | MDA 需求拆解 | `agents/sd-mda.md`（MDA 拆解规则） |
 | `sd-review` | 规范审查 | `agents/sd-review.md`（审查标准） |
+| `sd-interactive` | 客户端交互需求策划案 | `agents/sd-interactive.md`（交互设计规范） |
 
 ## 安装
 
@@ -74,6 +76,7 @@ done
 mklink "%USERPROFILE%\.pi\agent\agents\sd-writer.md" "%cd%\agents\sd-writer.md"
 mklink "%USERPROFILE%\.pi\agent\agents\sd-mda.md" "%cd%\agents\sd-mda.md"
 mklink "%USERPROFILE%\.pi\agent\agents\sd-review.md" "%cd%\agents\sd-review.md"
+mklink "%USERPROFILE%\.pi\agent\agents\sd-interactive.md" "%cd%\agents\sd-interactive.md"
 ```
 
 验证：`subagent { action: "list" }` 应看到 `sd-writer`、`sd-mda`、`sd-review`。

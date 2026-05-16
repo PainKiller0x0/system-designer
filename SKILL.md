@@ -36,6 +36,7 @@ description: 游戏系统策划多智能体工作流。基于 UI 参考图，自
 | `sd-writer` | 策划案撰写/修改 | `agents/sd-writer.md`（格式、语言、结构等规范） |
 | `sd-mda` | MDA 需求拆解 | `agents/sd-mda.md`（MDA 拆解规则） |
 | `sd-review` | 规范审查 | `agents/sd-review.md`（审查标准） |
+| `sd-interactive` | 客户端交互需求策划案 | `agents/sd-interactive.md`（交互设计规范） |
 
 ## vision_describe 调用方式
 通过 MCP 服务器将图片转为结构化文字描述，供文本模型理解 UI 图。
@@ -81,7 +82,7 @@ subagent SINGLE: { agent: "sd-mda", task: "以下是用户提供的 UI 参考图
 **Step 3：调用策划案撰写（sd-writer）**
 
 ```
-subagent SINGLE: { agent: "sd-writer", task: "请根据需求文档撰写策划案。需求文档路径：docs/{session_id}_confirmed_draft.md\n\nsession_id: {session_id}\n\n如需查阅项目历史文档，请使用 read 工具读取 docs/project_doc_index.md 中对应的文件。" }
+subagent SINGLE: { agent: "sd-writer", task: "请根据需求文档撰写策划案。需求文档路径：docs/{session_id}_confirmed_draft.md\n\nsession_id: {session_id}\n\n最后将文件保存为txt文件。" }
 ```
 
 **Step 4：自动调用规范审查（sd-review）**
